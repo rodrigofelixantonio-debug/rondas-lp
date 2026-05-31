@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#FFE600">
+<title>Rondas LP</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --am:#FFE600;--pr:#111;--bg:#F4F4EF;--brd:#E5E5DE;
+  --vd:#00C853;--vm:#FF3B3B;--az:#2979FF;--br:#FFF;
+  --tx:#111;--t2:#88887E;--r:16px;--r2:12px;
+  --sh:0 1px 8px rgba(0,0,0,.06);
+}
+html,body{height:100%;width:100%;font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* NAV */
+.nav{background:var(--pr);flex-shrink:0}
+.nav-top{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 9px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{background:var(--am);color:var(--pr);font-weight:900;font-size:10px;padding:4px 8px;border-radius:7px;letter-spacing:.5px;line-height:1.3}
+.brand-txt{color:#fff;font-weight:800;font-size:15px;line-height:1.1}
+.brand-sub{color:#555;font-size:9.5px;font-weight:500}
+.btn-upd{background:rgba(255,255,255,.07);color:#ccc;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:7px 12px;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-upd:active{opacity:.6}
+.btn-upd svg{width:12px;height:12px}
+.nav-tabs{display:flex;border-top:1px solid #1e1e1e}
+.ntab{flex:1;padding:9px 2px 11px;text-align:center;cursor:pointer;color:#555;font-size:9.5px;font-weight:700;border-bottom:2px solid transparent;transition:all .2s;user-select:none;letter-spacing:.3px;font-family:inherit}
+.ntab.on{color:var(--am);border-bottom-color:var(--am)}
+.ntab-ic{font-size:16px;display:block;margin-bottom:1px}
+.ntab-badge{display:inline-block;background:var(--vm);color:#fff;font-size:8.5px;font-weight:800;border-radius:20px;padding:0 5px;margin-left:2px;vertical-align:middle;min-width:15px;text-align:center;line-height:14px}
+
+/* PAGES */
+.page{flex:1;overflow-y:auto;padding:14px 13px 95px;display:flex;flex-direction:column;gap:12px}
+.page.off{display:none!important}
+
+/* CARDS */
+.card{background:var(--br);border-radius:var(--r);box-shadow:var(--sh);padding:15px;border:1px solid var(--brd)}
+.ctit{font-size:9.5px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.ctit::before{content:"";width:3px;height:13px;background:var(--am);border-radius:2px;flex-shrink:0}
+
+/* STATUS */
+.sbar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);padding:10px 13px;background:var(--br);border-radius:var(--r2);border:1px solid var(--brd)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--vd);flex-shrink:0;transition:background .3s}
+.sdot.off{background:var(--vm)}.sdot.pulse{background:var(--am);animation:pulse .9s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* VIGILANTE */
+.vig-chip{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--bg);border-radius:var(--r2);cursor:pointer;border:2px solid var(--am);transition:opacity .15s}
+.vig-chip:active{opacity:.7}
+.vig-av{width:38px;height:38px;border-radius:50%;background:var(--pr);display:flex;align-items:center;justify-content:center;color:var(--am);font-weight:900;font-size:12px;flex-shrink:0;font-family:"DM Mono",monospace}
+.vig-nome{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vig-hint{font-size:11px;color:var(--t2);margin-top:1px}
+select,input[type=text],input[type=date],input[type=password]{width:100%;padding:11px 13px;border:1.5px solid var(--brd);border-radius:var(--r2);font-size:14px;background:var(--br);color:var(--tx);font-family:inherit;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer}
+select:focus,input:focus{border-color:var(--am)}
+textarea{width:100%;padding:11px 13px;border:1.5px solid var(--brd);border-radius:var(--r2);font-size:14px;font-family:inherit;resize:none;color:var(--tx);background:var(--br);outline:none;transition:border-color .15s}
+textarea:focus{border-color:var(--am)}
+
+/* BUTTONS */
+.btn{width:100%;border:none;border-radius:var(--r2);padding:13px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.7}
+.btn-prim{background:var(--pr);color:var(--am);margin-top:10px}
+.btn-scan{background:var(--pr);color:var(--am);padding:15px;font-size:15px}
+.btn-scan.on{background:var(--vm);color:#fff}
+.btn-scan svg{width:20px;height:20px}
+.btn-reg{background:var(--vd);color:#fff;opacity:.35;pointer-events:none;padding:16px;font-size:15px}
+.btn-reg.on{opacity:1;pointer-events:all}
+.btn-sm{padding:9px 15px;font-size:12px;font-weight:700;border-radius:10px;border:none;cursor:pointer;font-family:inherit;width:auto;display:inline-flex;align-items:center;gap:5px}
+.btn-outline{background:var(--bg);color:var(--t2);border:1.5px solid var(--brd)}
+.btn-am{background:var(--am);color:var(--pr)}
+.btn-dark{background:var(--pr);color:var(--am)}
+
+/* SCANNER */
+.sc-outer{border-radius:12px;overflow:hidden;background:#000;position:relative;margin-top:12px}
+#qr-reader{width:100%!important}
+#qr-reader video{width:100%!important;border-radius:0;display:block}
+#qr-reader__dashboard_section_swaplink,#qr-reader__dashboard_section_fileselection,
+#qr-reader__status_span,#qr-reader__camera_selection,#qr-reader__header_message{display:none!important}
+.sc-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.sc-fr{width:185px;height:185px;border:3px solid var(--am);border-radius:15px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+.sc-hint{text-align:center;font-size:11.5px;color:#aaa;margin-top:8px}
+
+/* RESULTADO */
+.res{border-radius:12px;padding:14px;border:1.5px solid var(--brd);margin-top:12px;display:none}
+.res.ok{border-color:var(--vd);background:#F0FFF6}
+.res.err{border-color:var(--vm);background:#FFF5F5}
+.res-tit{font-weight:700;font-size:13px;margin-bottom:8px}
+.res.ok .res-tit{color:var(--vd)}.res.err .res-tit{color:var(--vm)}
+.res-row{display:flex;gap:8px;margin-bottom:4px;font-size:13px;align-items:flex-start}
+.res-lbl{color:var(--t2);min-width:68px;font-size:11px;padding-top:1px;flex-shrink:0;font-weight:600}
+.res-val{font-weight:600;flex:1;line-height:1.4}
+
+/* HISTÓRICO */
+.hist-row{display:flex;gap:8px;align-items:center}
+.hist-row input[type=date]{flex:1}
+.pills{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.pill{padding:7px 13px;border-radius:20px;border:1.5px solid var(--brd);background:var(--br);font-size:11.5px;font-weight:700;cursor:pointer;color:var(--t2);transition:all .15s;font-family:inherit}
+.pill.on{background:var(--pr);color:var(--am);border-color:var(--pr)}
+.hist-meta{font-size:11.5px;color:var(--t2);padding:3px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.hist-load{text-align:center;padding:30px;color:var(--t2)}
+.spin{width:20px;height:20px;border:2.5px solid rgba(0,0,0,.07);border-top-color:var(--t2);border-radius:50%;animation:rot .7s linear infinite;display:inline-block;vertical-align:middle}
+.spin.wh{border-color:rgba(255,255,255,.15);border-top-color:#fff}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ITEMS */
+.h-item{padding:12px 0;border-bottom:1px solid #F0F0EC}
+.h-item:last-child{border-bottom:none}
+.h-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.h-loc{font-weight:700;font-size:13px;flex:1;line-height:1.3}
+.h-hr{font-size:12px;font-weight:800;color:var(--pr);background:var(--am);padding:2px 8px;border-radius:20px;flex-shrink:0;font-family:"DM Mono",monospace}
+.h-end{font-size:12px;color:var(--t2);margin-top:3px}
+.h-by{font-size:11px;color:#bbb;margin-top:2px}
+.h-obs{font-size:11px;color:var(--az);margin-top:4px;background:#F0F4FF;padding:3px 8px;border-radius:6px;display:inline-block;font-style:italic}
+.badge{display:inline-flex;align-items:center;font-size:8.5px;font-weight:800;padding:2px 7px;border-radius:20px;margin-right:4px;text-transform:uppercase;letter-spacing:.4px;vertical-align:middle;flex-shrink:0}
+.badge.INT{background:#E3F2FD;color:#1565C0}
+.badge.EXT{background:#E8F5E9;color:#1B5E20}
+.badge.CRITICO{background:#FFF3E0;color:#E65100}
+.badge.NOW{background:#FFF9C4;color:#856404}
+.empty{text-align:center;padding:36px 16px;color:var(--t2);font-size:13.5px;line-height:1.7}
+.empty-ic{font-size:38px;margin-bottom:10px}
+.pg-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:11px;border-top:1px solid var(--brd);margin-top:4px}
+.btn-pg{background:var(--bg);border:1.5px solid var(--brd);border-radius:8px;padding:8px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-pg:disabled{opacity:.3;cursor:default}
+.pg-info{font-size:12px;color:var(--t2);font-weight:600}
+.sess-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+
+/* ADMIN */
+.admin-label{font-size:10px;font-weight:800;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.admin-row{display:flex;gap:7px;margin-bottom:8px}
+.admin-row input{flex:1}
+.admin-list{margin-top:8px;max-height:220px;overflow-y:auto;border:1px solid var(--brd);border-radius:10px}
+.admin-item{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid #F2F2EE;gap:8px;font-size:13px}
+.admin-item:last-child{border-bottom:none}
+.admin-item-main{flex:1;min-width:0}
+.admin-item-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-item-sub{font-size:11px;color:var(--t2);margin-top:1px}
+.btn-del{background:none;border:none;color:#ddd;cursor:pointer;font-size:16px;padding:4px;line-height:1;transition:color .15s;flex-shrink:0}
+.btn-del:hover{color:var(--vm)}
+.lock-wrap{text-align:center;padding:36px 20px}
+.lock-ic{font-size:44px;margin-bottom:14px}
+.lock-wrap h3{font-size:16px;font-weight:800;margin-bottom:6px}
+.lock-wrap p{font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.5}
+.pw-row{display:flex;gap:7px}
+.pw-row input{flex:1}
+.tipo-row{display:flex;gap:6px}
+.tipo-btn{flex:1;padding:9px;border-radius:9px;border:1.5px solid var(--brd);background:var(--br);font-size:11.5px;font-weight:700;cursor:pointer;text-align:center;color:var(--t2);transition:all .15s;font-family:inherit}
+.tipo-btn.INT.on{background:#E3F2FD;border-color:#1565C0;color:#1565C0}
+.tipo-btn.EXT.on{background:#E8F5E9;border-color:#1B5E20;color:#1B5E20}
+
+/* TOAST */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--pr);color:#fff;padding:10px 20px;border-radius:50px;font-size:12.5px;font-weight:600;opacity:0;transition:all .22s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.toast.vd{background:var(--vd)}.toast.vm{background:var(--vm)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-top">
+    <div class="brand">
+      <div class="brand-badge">LP</div>
+      <div>
+        <div class="brand-txt">Rondas</div>
+        <div class="brand-sub">Loss Prevention · SP18/SP19</div>
+      </div>
+    </div>
+    <button class="btn-upd" id="btn-upd" onclick="acaoAtualizar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="nav-tabs">
+    <div class="ntab on" id="tab-int" onclick="setTipo('INT')"><span class="ntab-ic">🏢</span>Interna</div>
+    <div class="ntab" id="tab-ext" onclick="setTipo('EXT')"><span class="ntab-ic">🌐</span>Externa</div>
+    <div class="ntab" id="tab-hist" onclick="abrirHist()">
+      <span class="ntab-ic">📋</span>Histórico
+      <span class="ntab-badge" id="badge-sess" style="display:none">0</span>
+    </div>
+    <div class="ntab" id="tab-admin" onclick="abrirAdmin()"><span class="ntab-ic">⚙️</span>Admin</div>
+  </div>
+</div>
+
+<!-- PAGE RONDA -->
+<div class="page" id="pg-ronda">
+  <div class="sbar"><div class="sdot" id="sdot"></div><span id="stxt">Verificando...</span></div>
+
+  <div class="card">
+    <div class="ctit">Vigilante</div>
+    <div id="blk-sel">
+      <select id="sel-vig"><option value="">— Selecione seu nome —</option></select>
+      <button class="btn btn-prim" onclick="confirmarNome()">Confirmar nome</button>
+    </div>
+    <div id="blk-ativo" style="display:none">
+      <div class="vig-chip" onclick="trocarVig()">
+        <div class="vig-av" id="vig-av">?</div>
+        <div style="flex:1;min-width:0">
+          <div class="vig-nome" id="vig-nome">—</div>
+          <div class="vig-hint">Toque para trocar</div>
+        </div>
+        <div style="color:var(--t2);font-size:21px">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctit">Leitura QR Code</div>
+    <button class="btn btn-scan" id="btn-sc" onclick="toggleScan()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="17" y2="14"/><line x1="20" y1="14" x2="20" y2="14"/><line x1="14" y1="17" x2="14" y2="20"/><line x1="17" y1="20" x2="20" y2="20"/></svg>
+      <span id="sc-txt">Iniciar câmera</span>
+    </button>
+    <div id="sc-wrap" style="display:none">
+      <div class="sc-outer"><div id="qr-reader"></div><div class="sc-ov"><div class="sc-fr"></div></div></div>
+      <p class="sc-hint">Aponte para o QR Code do ponto</p>
+    </div>
+    <div class="res" id="res-scan">
+      <div class="res-tit" id="res-tit"></div>
+      <div id="res-campos"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card-obs" style="display:none">
+    <div class="ctit">Observação <span style="font-weight:400;color:#ccc;font-size:9px;text-transform:none;letter-spacing:0">(opcional)</span></div>
+    <textarea id="txt-obs" rows="3" placeholder="Divergência ou observação..."></textarea>
+  </div>
+
+  <button class="btn btn-reg" id="btn-reg" onclick="registrar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="19" height="19"><polyline points="20 6 9 17 4 12"/></svg>
+    Registrar Ronda
+  </button>
+</div>
+
+<!-- PAGE HISTÓRICO -->
+<div class="page off" id="pg-hist">
+  <div class="card">
+    <div class="ctit">Buscar por data</div>
+    <div class="hist-row">
+      <input type="date" id="hist-data">
+      <button class="btn-sm btn-outline" onclick="setHoje()">Hoje</button>
+      <button class="btn-sm btn-dark" onclick="buscarHist()">🔍 Buscar</button>
+    </div>
+    <div class="pills">
+      <button class="pill on" id="pill-int" onclick="setPilha('INT')">🏢 Internas</button>
+      <button class="pill" id="pill-ext" onclick="setPilha('EXT')">🌐 Externas</button>
+      <button class="pill" id="pill-amb" onclick="setPilha('AMBAS')">📋 Ambas</button>
+    </div>
+  </div>
+
+  <div class="card" id="card-result">
+    <div id="hist-meta" class="hist-meta" style="display:none"></div>
+    <div id="hist-lista"><div class="empty"><div class="empty-ic">📅</div>Escolha uma data e clique em Buscar</div></div>
+    <div class="pg-bar" id="pg-bar" style="display:none">
+      <button class="btn-pg" id="btn-prev" onclick="pgMover(-1)">← Anterior</button>
+      <span class="pg-info" id="pg-info"></span>
+      <button class="btn-pg" id="btn-next" onclick="pgMover(1)">Próxima →</button>
+    </div>
+  </div>
+
+  <div class="card" id="card-sess" style="display:none">
+    <div class="sess-hdr">
+      <div class="ctit" style="margin-bottom:0">Registros desta sessão</div>
+      <span id="sess-qtd" style="font-size:12px;color:var(--t2);font-weight:700"></span>
+    </div>
+    <div id="sess-lista"></div>
+  </div>
+</div>
+
+<!-- PAGE ADMIN -->
+<div class="page off" id="pg-admin">
+  <div id="admin-lock">
+    <div class="card">
+      <div class="lock-wrap">
+        <div class="lock-ic">🔐</div>
+        <h3>Área Administrativa</h3>
+        <p>Cadastro de vigilantes e pontos de ronda.<br>Digite a senha para acessar.</p>
+        <div class="pw-row">
+          <input type="password" id="pw-input" placeholder="Senha" onkeydown="if(event.key==='Enter')checkPw()">
+          <button class="btn-sm btn-dark" onclick="checkPw()">Entrar</button>
+        </div>
+        <div id="pw-err" style="color:var(--vm);font-size:12px;margin-top:8px;display:none">Senha incorreta</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-content" style="display:none">
+    <!-- Vigilantes -->
+    <div class="card">
+      <div class="ctit">Vigilantes (<span id="vig-count">0</span>)</div>
+      <div class="admin-label">Adicionar</div>
+      <div class="admin-row">
+        <input type="text" id="new-vig" placeholder="Nome completo">
+        <button class="btn-sm btn-am" onclick="addVig()">+ Add</button>
+      </div>
+      <div class="admin-label" style="margin-top:10px">Lista</div>
+      <div class="admin-list" id="vig-list"></div>
+    </div>
+
+    <!-- QR Codes -->
+    <div class="card">
+      <div class="ctit">Pontos QR Code (<span id="qr-count">0</span>)</div>
+      <div class="admin-label">Adicionar novo ponto</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
+        <input type="text" id="new-qr" placeholder="Código QR (ex: 4092099)">
+        <input type="text" id="new-end" placeholder="Endereço / Descrição">
+        <input type="text" id="new-loc" placeholder="Local (ex: INTERNO)">
+        <div class="tipo-row">
+          <button class="tipo-btn INT on" id="qr-tipo-int" onclick="setQrTipo('INT')">🏢 Interna</button>
+          <button class="tipo-btn EXT" id="qr-tipo-ext" onclick="setQrTipo('EXT')">🌐 Externa</button>
+        </div>
+      </div>
+      <button class="btn btn-am" style="color:var(--pr)" onclick="addQR()">+ Adicionar Ponto</button>
+      <div class="admin-label" style="margin-top:12px">Pontos cadastrados</div>
+      <div class="admin-list" id="qr-list"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// DADOS ESTÁTICOS
+// ══════════════════════════════════════════
+const QR_BASE_DEFAULT = [{"id": "BRSP18- P1", "qrcode": "4092025", "endereco": "PORTA DE EMERGÊNCIA 01", "local": "INTERNO"}, {"id": "BRSP18- P2", "qrcode": "4092026", "endereco": "PORTA DE EMERGÊNCIA 02", "local": "INTERNO"}, {"id": "BRSP18- P3", "qrcode": "4092027", "endereco": "PORTA DE EMERGÊNCIA 03", "local": "INTERNO"}, {"id": "BRSP18- P4", "qrcode": "4092028", "endereco": "PORTA DE EMERGÊNCIA 04", "local": "INTERNO"}, {"id": "BRSP18- P5", "qrcode": "4092029", "endereco": "PORTA DE EMERGÊNCIA 05", "local": "INTERNO"}, {"id": "BRSP18- P6", "qrcode": "4092030", "endereco": "PORTA DE EMERGÊNCIA 06", "local": "INTERNO"}, {"id": "BRSP18- P7", "qrcode": "4092031", "endereco": "PORTA DE EMERGÊNCIA 07", "local": "INTERNO"}, {"id": "BRSP18- P8", "qrcode": "4092032", "endereco": "PORTA DE EMERGÊNCIA 08", "local": "INTERNO"}, {"id": "BRSP18- P9", "qrcode": "4092033", "endereco": "PORTA DE EMERGÊNCIA 09", "local": "INTERNO"}, {"id": "BRSP18- P10", "qrcode": "4092034", "endereco": "PORTA DE EMERGÊNCIA 10", "local": "INTERNO"}, {"id": "BRSP18- P11", "qrcode": "4092035", "endereco": "PORTA DIVISORIA 01 - ILHA LOSS", "local": "INTERNO"}, {"id": "BRSP18- P12", "qrcode": "4092036", "endereco": "PORTA VIDRO 01 - ILHA LOSS", "local": "INTERNO"}, {"id": "BRSP18- P13", "qrcode": "4092037", "endereco": "DIVISORIA 02", "local": "INTERNO"}, {"id": "BRSP18- P14", "qrcode": "4092038", "endereco": "PORTA DE EMERGÊNCIA 11", "local": "INTERNO"}, {"id": "BRSP18- P15", "qrcode": "4092039", "endereco": "PORTA DE VIDRO 02", "local": "INTERNO"}, {"id": "BRSP18- P16", "qrcode": "4092040", "endereco": "PORTA DIVISORIA 03", "local": "INTERNO"}, {"id": "BRSP18- P17", "qrcode": "4092041", "endereco": "", "local": "INTERNO"}, {"id": "BRSP19 - P1", "qrcode": "1092023", "endereco": "ENTRADA PRINCIPAL PORTA DE VIDRO INTERNO MODULO 01", "local": "INTERNO"}, {"id": "BRSP19 - P2", "qrcode": "1092024", "endereco": "ARMÁRIOS PORTARIA PRINCIPAL", "local": "INTERNO"}, {"id": "BRSP19 - P3", "qrcode": "1092025", "endereco": "AMBULATÓRIO", "local": "INTERNO"}, {"id": "BRSP19 - P4", "qrcode": "1092026", "endereco": "PORTA DE EMERGÊNCIA 01", "local": "INTERNO"}, {"id": "BRSP19 - P5", "qrcode": "1092027", "endereco": "PORTA DE EMERGÊNCIA 02", "local": "INTERNO"}, {"id": "BRSP19 - P6", "qrcode": "1092028", "endereco": "PORTA DE EMERGÊNCIA 03", "local": "INTERNO"}, {"id": "BRSP19 - P7", "qrcode": "1092029", "endereco": "PORTA DE EMERGÊNCIA 04", "local": "INTERNO"}, {"id": "BRSP19 - P8", "qrcode": "1092030", "endereco": "PORTA DE EMERGÊNCIA 05", "local": "INTERNO"}, {"id": "BRSP19 - P9", "qrcode": "1092031", "endereco": "PORTA DE EMERGÊNCIA 06", "local": "INTERNO"}, {"id": "BRSP19 - P10", "qrcode": "1092032", "endereco": "PORTA DE EMERGÊNCIA 07", "local": "INTERNO"}, {"id": "BRSP19 - P11", "qrcode": "1092033", "endereco": "PORTA DE EMERGÊNCIA 08", "local": "INTERNO"}, {"id": "BRSP19 - P12", "qrcode": "1092034", "endereco": "PORTA DE EMERGÊNCIA 09", "local": "INTERNO"}, {"id": "BRSP19 - P13", "qrcode": "1092035", "endereco": "PORTA DE EMERGÊNCIA 10", "local": "INTERNO"}, {"id": "BRSP19 - P14", "qrcode": "1092036", "endereco": "PORTA DE EMERGÊNCIA 11 PAPELÃO", "local": "INTERNO"}, {"id": "BRSP19 - P15", "qrcode": "1092037", "endereco": "DESCARTE DOCA 78,79 E 80", "local": "INTERNO"}, {"id": "BRSP19 - P16", "qrcode": "1092038", "endereco": "SALA BATERIAS", "local": "INTERNO"}, {"id": "BRSP19 - P17", "qrcode": "1092039", "endereco": "PORTA DE VIDRO LOSS PREVENTION", "local": "INTERNO"}, {"id": "BRSP19 - P18", "qrcode": "1092040", "endereco": "PORTA DE EMERGÊNCIA 12", "local": "INTERNO"}, {"id": "BRSP19 - P19", "qrcode": "1092041", "endereco": "PORTA DE EMERGÊNCIA 13 PAPELÃO", "local": "INTERNO"}, {"id": "BRSP19 - P20", "qrcode": "1092042", "endereco": "PORTA PAPELÃO ESFERA A", "local": "INTERNO"}, {"id": "BRSP19 - P21", "qrcode": "1092043", "endereco": "Sala de Treinamento", "local": "INTERNO"}, {"id": "BRSP19 - P22", "qrcode": "1092044", "endereco": "PORTA DE EMERGÊNCIA 14", "local": "INTERNO"}, {"id": "BRSP19 - P23", "qrcode": "1092045", "endereco": "PORTA DE EMERGÊNCIA 15 PAPELÃO", "local": "INTERNO"}, {"id": "BRSP18/19 - QTO - 01", "qrcode": "RONDA0LP2000", "endereco": "QTO_VISTORIA_01", "local": "CRITICO - SP19_MD01_PNE"}, {"id": "BRSP18/19 - QTO - 02", "qrcode": "RONDA0LP2001", "endereco": "QTO_VISTORIA_02", "local": "CRITICO - SP19_MD01_FEM"}, {"id": "BRSP18/19 - QTO - 03", "qrcode": "RONDA0LP2002", "endereco": "QTO_VISTORIA_03", "local": "CRITICO - SP19_MD01_MAS"}, {"id": "BRSP18/19 - QTO - 04", "qrcode": "RONDA0LP2003", "endereco": "QTO_VISTORIA_04", "local": "CRITICO - SP19_MD02_PNE"}, {"id": "BRSP18/19 - QTO - 05", "qrcode": "RONDA0LP2004", "endereco": "QTO_VISTORIA_05", "local": "CRITICO - SP19_MD02_MAS"}, {"id": "BRSP18/19 - QTO - 06", "qrcode": "RONDA0LP2005", "endereco": "QTO_VISTORIA_06", "local": "CRITICO - SP19_MD02_FEM"}, {"id": "BRSP18/19 - QTO - 07", "qrcode": "RONDA0LP2006", "endereco": "QTO_VISTORIA_07", "local": "CRITICO - SP19_MD03_PNE"}, {"id": "BRSP18/19 - QTO - 08", "qrcode": "RONDA0LP2007", "endereco": "QTO_VISTORIA_08", "local": "CRITICO - SP19_MD03_FEM"}, {"id": "BRSP18/19 - QTO - 09", "qrcode": "RONDA0LP2008", "endereco": "QTO_VISTORIA_09", "local": "CRITICO - SP19_MD03_MAS"}, {"id": "BRSP18/19 - QTO - 10", "qrcode": "RONDA0LP2009", "endereco": "QTO_VISTORIA_10", "local": "CRITICO - SP18_MD01_PNE"}, {"id": "BRSP18/19 - QTO - 11", "qrcode": "RONDA0LP2010", "endereco": "QTO_VISTORIA_11", "local": "CRITICO - SP18_MD01_MAS"}, {"id": "BRSP18/19 - QTO - 12", "qrcode": "RONDA0LP2011", "endereco": "QTO_VISTORIA_12", "local": "CRITICO - SP18_MD01_FEM"}, {"id": "BRSP18/19 - QTO - 13", "qrcode": "RONDA0LP2012", "endereco": "QTO_VISTORIA_13", "local": "CRITICO - SP18_MD02_PNE"}, {"id": "BRSP18/19 - QTO - 14", "qrcode": "RONDA0LP2013", "endereco": "QTO_VISTORIA_14", "local": "CRITICO - SP18_MD02_MAS"}, {"id": "BRSP18/19 - QTO - 15", "qrcode": "RONDA0LP2014", "endereco": "QTO_VISTORIA_15", "local": "CRITICO - SP18_MD02_FEM"}, {"id": "BRSP18/19 - QTO - 16", "qrcode": "RONDA0LP2015", "endereco": "QTO_VISTORIA_16", "local": "CRITICO - SP18_MD03_PNE"}, {"id": "BRSP18/19 - QTO - 17", "qrcode": "RONDA0LP2016", "endereco": "QTO_VISTORIA_17", "local": "CRITICO - SP18_MD03_FEM"}, {"id": "BRSP18/19 - QTO - 19", "qrcode": "RONDA0LP2018", "endereco": "QTO_VISTORIA_19", "local": "CRITICO - SP18_MD03_MAS"}];
+const VIGS_DEFAULT    = ["ADRIANA DE SOUZA GASPAR", "Adriana Stankunavicius sobrinho", "Agenilson Silva de Jesus", "Aldair Pereira Apóstolo", "Alessandra dos Santos Oliveira", "Alexsandro dos Santos", "Aline Ferreira da Silva Alves", "Ana Claudia Pereira de Lima", "Ana Paula Sant ana da Silva", "Andressa Souza da silva", "André Lopes Pereira", "Ariane Prereira da Silva", "Beatriz Lopes Coutinho", "Bruno Carlos da Silva Costa", "Caio Vinicios Melo Vianna", "Claudia Veronica da Silva Paco", "Danilo Oliveira dos Anjos", "Debora Lemos Tavares de Oliveira", "Denise Aparecida da Silva Castro", "Eduardo Jose Tavares Filho", "Elaine Cristina da Silva Carvalho", "Eliane Anastácia da Silva", "Emily de Oliveira", "Enio dos Santos Souza", "Evelyn Fabrina Assis De Souza", "Everaldo ferreira de Sousa", "Fabio Neres dos santos", "Fernando Saraiva", "Geiza Almeida de Matos", "Gisele Luiza Da Silva", "Graziela Rodrigues da Silva", "Grazielle Alves Araújo", "Helena Ketlin Batista dos Santos", "Ingrid sales Martins Vieira", "Jacileide Gomes do Nascimento", "Janaina Jose da Silva", "Joelma Martins de Oliveira", "Johnes Silva de Moraes", "José Victor da Silva Alves", "Karleusa Adriana Pereira Trieste", "Leila Maria sandes dos Santos", "Luciana Aparecida Pereira Fernandes", "Luciana egashira da silva", "Luciane dos Santos Vettore", "Lucimar Gomes de Almeida", "Lucinéia Braga de Oliveira", "Marcelo Chagas Brito", "Maria Jose Diniz", "Maria José Serafim da Silva", "Maria Lopes Rodrigues", "Maria Vanusa de Jesus", "Maricleide Tavares da Silva", "Marinalva Rosa Domingos", "Murieli Santana da Silva", "Mábina Cerqueira de Souza", "Naiara Gomes de santana", "Natalia Alves de Oliveira", "Natalia Cristina da Silva Nascimento", "Paulo Henrique Oliveira Silva", "Reisimar Silva Souza Teodozio", "Rodrigo Queiroz de Oliveira", "Rosenilda Francisca", "Silmara Aparecida Albaneti", "Simone jardim de oliveira Raris", "Stefanie Bianca Lopes crispim", "Tatiane Ramos Ribeiro", "Welton Roberto da Silva costa"];
+
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const FORM_ACTION  = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScF4j0gRCNI6vYUcrBX6A5361raYEjzCSZLOWf5t6KIP87Jiw/formResponse';
+const FORM_FIELDS  = {
+  id:'entry.891946880', qrcode:'entry.382907975', endereco:'entry.2005857627',
+  local:'entry.675999074', hora:'entry.1184637220', gps:'entry.1002064785',
+  realizadoPor:'entry.1046680104', obs:'entry.1688736061', data:'entry.1357841338', tipo:'entry.563585686'
+};
+const SHEET_FORMS_ID = '1WgMoW-O5t0RswX6EsZtgF-wv2YPfIB5sRX20rGCmEt8';
+const ADMIN_LOGIN    = 'admin.lp';
+const ADMIN_SENHA    = '2026@lp';
+const VIG_KEY        = 'rondas_vig_v4';
+const POR_PAG        = 40;
+
+// ══════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════
+const S = {
+  tipo:'INT', vigilante:'', scanOn:false, ponto:null,
+  sessao:[], qr:null, histTipo:'INT', histTodos:[], histPag:1,
+  adminOk:false, qrTipoNovo:'INT',
+  vigs:[], qrBase:[],
+};
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  carregarStorage();
+  pingConexao();
+  window.addEventListener('online', pingConexao);
+  window.addEventListener('offline', pingConexao);
+  setHoje();
+});
+
+const $ = id => document.getElementById(id);
+
+function carregarStorage() {
+  try {
+    const v = localStorage.getItem('rondas_vigs_v4');
+    S.vigs = v ? JSON.parse(v) : [...VIGS_DEFAULT].sort();
+    if (!v) localStorage.setItem('rondas_vigs_v4', JSON.stringify(S.vigs));
+  } catch(e) { S.vigs = [...VIGS_DEFAULT].sort(); }
+  
+  try {
+    const q = localStorage.getItem('rondas_qr_v4');
+    S.qrBase = q ? JSON.parse(q) : [...QR_BASE_DEFAULT];
+    if (!q) localStorage.setItem('rondas_qr_v4', JSON.stringify(S.qrBase));
+  } catch(e) { S.qrBase = [...QR_BASE_DEFAULT]; }
+
+  renderSelVig();
+  const salvo = localStorage.getItem(VIG_KEY);
+  if (salvo) { S.vigilante = salvo; setVigAtivo(salvo); }
+}
+
+function saveVigs() { try { localStorage.setItem('rondas_vigs_v4', JSON.stringify(S.vigs)); } catch(e) {} }
+function saveQR()   { try { localStorage.setItem('rondas_qr_v4',   JSON.stringify(S.qrBase)); } catch(e) {} }
+
+function renderSelVig() {
+  const sel = $('sel-vig');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Selecione seu nome —</option>';
+  S.vigs.forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    if (n === S.vigilante) o.selected = true;
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+
+// ══════════════════════════════════════════
+// CONEXÃO
+// ══════════════════════════════════════════
+function pingConexao() {
+  if (navigator.onLine) setStatus('ok','Online · ' + S.vigs.length + ' vigilantes');
+  else setStatus('off','Sem conexão');
+}
+function setStatus(t, txt) {
+  $('stxt').textContent = txt;
+  $('sdot').className = t==='ok'?'sdot':t==='off'?'sdot off':'sdot pulse';
+}
+
+// ══════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════
+function setTipo(tipo) {
+  S.tipo = tipo;
+  ['int','ext','hist','admin'].forEach(t =>
+    $('tab-'+t).className = 'ntab' + ((tipo==='INT'&&t==='int')||(tipo==='EXT'&&t==='ext')?' on':'')
+  );
+  showPage('pg-ronda');
+  pararScan(); limparRes();
+}
+function abrirHist() {
+  ['int','ext','hist','admin'].forEach(t => $('tab-'+t).className = 'ntab'+(t==='hist'?' on':''));
+  showPage('pg-hist'); renderSessao();
+}
+function abrirAdmin() {
+  ['int','ext','hist','admin'].forEach(t => $('tab-'+t).className = 'ntab'+(t==='admin'?' on':''));
+  showPage('pg-admin');
+  if (S.adminOk) renderAdmin();
+}
+function showPage(id) {
+  ['pg-ronda','pg-hist','pg-admin'].forEach(p => $(p).className = 'page'+(p===id?'':' off'));
+}
+
+// ══════════════════════════════════════════
+// VIGILANTE
+// ══════════════════════════════════════════
+function confirmarNome() {
+  const nome = $('sel-vig').value.trim();
+  if (!nome) { toast('Selecione um nome','vm'); return; }
+  S.vigilante = nome;
+  localStorage.setItem(VIG_KEY, nome);
+  setVigAtivo(nome);
+  toast('Olá, '+nome.split(' ')[0]+'! 👋','vd');
+  chkBtn();
+}
+function setVigAtivo(nome) {
+  $('blk-sel').style.display = 'none';
+  $('blk-ativo').style.display = 'block';
+  $('vig-nome').textContent = nome;
+  const p = nome.trim().split(' ').filter(Boolean);
+  $('vig-av').textContent = (p[0]?.[0]||'').toUpperCase()+(p[1]?.[0]||'').toUpperCase();
+}
+function trocarVig() {
+  $('blk-sel').style.display='block';
+  $('blk-ativo').style.display='none';
+  chkBtn();
+}
+
+// ══════════════════════════════════════════
+// SCANNER
+// ══════════════════════════════════════════
+function toggleScan() { S.scanOn ? pararScan() : iniciarScan(); }
+function iniciarScan() {
+  $('sc-wrap').style.display='block';
+  $('btn-sc').classList.add('on');
+  $('sc-txt').textContent='Parar câmera';
+  S.scanOn=true; limparRes();
+  S.qr = new Html5Qrcode('qr-reader');
+  S.qr.start({facingMode:'environment'},{fps:10,qrbox:{width:185,height:185}},onQR,()=>{})
+    .catch(e=>{toast('Câmera: '+e,'vm');pararScan();});
+}
+function pararScan() {
+  $('sc-wrap').style.display='none';
+  $('btn-sc').classList.remove('on');
+  $('sc-txt').textContent='Iniciar câmera';
+  S.scanOn=false;
+  if(S.qr){S.qr.stop().catch(()=>{});S.qr=null;}
+}
+
+function onQR(codigo) {
+  pararScan();
+  const qrUp = String(codigo).trim().toUpperCase();
+  const pt = S.qrBase.find(p => String(p.qrcode).trim().toUpperCase() === qrUp);
+  const rd = $('res-scan');
+  rd.style.display='block';
+
+  if (pt) {
+    S.ponto = pt; rd.className='res ok';
+    $('res-tit').textContent='✅ Ponto identificado';
+    const tipoBadge = pt.local && pt.local.includes('CRITICO') ? 'CRITICO' : S.tipo;
+    $('res-campos').innerHTML=`
+      <div class="res-row"><span class="res-lbl">Local</span><span class="res-val"><span class="badge ${tipoBadge}">${tipoBadge}</span>${pt.local||'—'}</span></div>
+      <div class="res-row"><span class="res-lbl">Endereço</span><span class="res-val">${pt.endereco||'—'}</span></div>
+      <div class="res-row"><span class="res-lbl">Código</span><span class="res-val" style="font-family:'DM Mono',monospace;font-size:12px">${pt.qrcode}</span></div>`;
+    $('card-obs').style.display='block';
+    toast('✓ '+( pt.local||pt.endereco),'vd');
+  } else {
+    S.ponto=null; rd.className='res err';
+    $('res-tit').textContent='❌ QR Code não encontrado';
+    $('res-campos').innerHTML=`
+      <div class="res-row"><span class="res-lbl">Código</span><span class="res-val" style="font-family:'DM Mono',monospace">${codigo}</span></div>
+      <div class="res-row" style="color:#c62828;font-size:12px">Não cadastrado. Adicione na aba Admin.</div>`;
+    $('card-obs').style.display='none';
+    toast('QR não encontrado','vm');
+  }
+  chkBtn();
+}
+
+function limparRes() {
+  S.ponto=null;
+  $('res-scan').style.display='none';
+  $('card-obs').style.display='none';
+  $('txt-obs').value='';
+  chkBtn();
+}
+function chkBtn() {
+  $('btn-reg').className='btn btn-reg'+(S.vigilante&&S.ponto?' on':'');
+}
+
+// ══════════════════════════════════════════
+// REGISTRAR → GOOGLE FORMS
+// ══════════════════════════════════════════
+async function registrar() {
+  if (!S.vigilante) { toast('Selecione o vigilante','vm'); return; }
+  if (!S.ponto)     { toast('Leia um QR Code primeiro','vm'); return; }
+
+  const btn = $('btn-reg');
+  btn.innerHTML='<span class="spin wh"></span> Registrando...';
+  btn.style.pointerEvents='none';
+
+  const agora = new Date();
+  const data  = agora.toLocaleDateString('pt-BR');
+  const hora  = agora.toTimeString().split(' ')[0];
+  const id    = Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+  let gps = '';
+  try {
+    gps = await new Promise((res,rej) => {
+      navigator.geolocation.getCurrentPosition(
+        p => res(p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6)),
+        () => res(''), {timeout:5000,maximumAge:30000}
+      );
+    });
+  } catch(e) {}
+
+  const obs  = $('txt-obs').value.trim();
+  const tipo = S.ponto.local?.includes('CRITICO') ? 'CRITICO' : S.tipo;
+
+  const fd = new FormData();
+  fd.append(FORM_FIELDS.id,          id);
+  fd.append(FORM_FIELDS.qrcode,      S.ponto.qrcode);
+  fd.append(FORM_FIELDS.endereco,    S.ponto.endereco||'');
+  fd.append(FORM_FIELDS.local,       S.ponto.local||'');
+  fd.append(FORM_FIELDS.hora,        hora);
+  fd.append(FORM_FIELDS.gps,         gps);
+  fd.append(FORM_FIELDS.realizadoPor,S.vigilante);
+  fd.append(FORM_FIELDS.obs,         obs);
+  fd.append(FORM_FIELDS.data,        data);
+  fd.append(FORM_FIELDS.tipo,        tipo);
+
+  try {
+    await fetch(FORM_ACTION, {method:'POST', body:fd, mode:'no-cors'});
+    S.sessao.unshift({id,qrcode:S.ponto.qrcode,endereco:S.ponto.endereco,local:S.ponto.local,hora,data,gps,realizadoPor:S.vigilante,obs,tipo});
+    atualizarBadge();
+    toast('✅ Ronda registrada!','vd');
+    limparRes();
+  } catch(e) {
+    toast('Erro: '+e.message,'vm');
+  }
+
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="19" height="19"><polyline points="20 6 9 17 4 12"/></svg> Registrar Ronda';
+  btn.style.pointerEvents='';
+  chkBtn();
+}
+
+// ══════════════════════════════════════════
+// HISTÓRICO
+// ══════════════════════════════════════════
+function setHoje() {
+  const n = new Date();
+  $('hist-data').value = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+}
+function setPilha(t) {
+  S.histTipo = t;
+  ['int','ext','amb'].forEach(x => {
+    const on = (t==='INT'&&x==='int')||(t==='EXT'&&x==='ext')||(t==='AMBAS'&&x==='amb');
+    $('pill-'+x).className = 'pill'+(on?' on':'');
+  });
+  if (S.histTodos.length) { S.histPag=1; aplicarFiltro(); }
+}
+async function buscarHist() {
+  const iso = $('hist-data').value;
+  if (!iso) { toast('Selecione uma data','vm'); return; }
+  const [y,m,d] = iso.split('-');
+  const dataBR = d+'/'+m+'/'+y;
+
+  $('hist-lista').innerHTML='<div class="hist-load"><span class="spin"></span><br><br>Buscando '+dataBR+'...<br><small style="color:#bbb">Aguarde até 30s</small></div>';
+  $('hist-meta').style.display='none';
+  $('pg-bar').style.display='none';
+
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_FORMS_ID}/gviz/tq?tqx=out:json`;
+    const r = await fetch(url);
+    const t = await r.text();
+    const json = JSON.parse(t.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+    const cols = json.table?.cols || [];
+    const rows = json.table?.rows || [];
+
+    const idx = {};
+    cols.forEach((c,i) => { if(c.label) idx[c.label.toLowerCase().trim()] = i; });
+
+    const get = (row, lbl) => {
+      const i = idx[lbl];
+      if (i===undefined) return '';
+      const cell = row.c?.[i];
+      return String(cell?.v ?? cell?.f ?? '').trim();
+    };
+
+    const regs = [];
+    rows.forEach(row => {
+      const dataReg = get(row,'data');
+      if (dataReg === dataBR) {
+        regs.push({
+          id: get(row,'id'), qrcode: get(row,'qrcode'),
+          endereco: get(row,'endereço')||get(row,'endereco'),
+          local: get(row,'local'), hora: get(row,'hora'),
+          realizadoPor: get(row,'realizado por'),
+          obs: get(row,'obs'), tipo: get(row,'tipo')||'INT', data: dataReg,
+        });
+      }
+    });
+
+    regs.sort((a,b) => (b.hora||'').localeCompare(a.hora||''));
+    S.histTodos = regs; S.histPag = 1;
+    aplicarFiltro();
+
+  } catch(e) {
+    $('hist-lista').innerHTML=`<div class="empty"><div class="empty-ic">⚠️</div><strong style="color:var(--vm)">Erro ao buscar</strong><br><span style="font-size:12px">${e.message}<br><br>Verifique se a planilha do Forms está pública (qualquer pessoa com link pode visualizar).</span></div>`;
+  }
+}
+
+function aplicarFiltro() {
+  let dados = S.histTodos;
+  if (S.histTipo !== 'AMBAS') dados = dados.filter(r => r.tipo === S.histTipo);
+  renderLista(dados);
+}
+
+function tipoBadgeClass(tipo) {
+  if (!tipo) return 'INT';
+  if (tipo.includes('CRITICO')) return 'CRITICO';
+  return tipo;
+}
+
+function renderLista(dados) {
+  const total = dados.length;
+  const totalPags = Math.max(1, Math.ceil(total/POR_PAG));
+  if (S.histPag > totalPags) S.histPag = totalPags;
+  const pag = dados.slice((S.histPag-1)*POR_PAG, S.histPag*POR_PAG);
+
+  const meta = $('hist-meta');
+  const iso = $('hist-data').value; const [y,m,d] = iso.split('-');
+  if (total > 0) {
+    meta.style.display='flex';
+    meta.innerHTML=`<span>${total} registro${total>1?'s':''} em ${d}/${m}/${y}</span><span style="font-size:11px">${S.histTipo==='AMBAS'?'INT+EXT':S.histTipo}</span>`;
+  } else { meta.style.display='none'; }
+
+  if (!pag.length) {
+    $('hist-lista').innerHTML=`<div class="empty"><div class="empty-ic">📭</div>Nenhuma ronda encontrada</div>`;
+    $('pg-bar').style.display='none'; return;
+  }
+
+  $('hist-lista').innerHTML = pag.map(r=>{
+    const bc = tipoBadgeClass(r.tipo);
+    return `<div class="h-item">
+      <div class="h-top">
+        <div class="h-loc"><span class="badge ${bc}">${r.tipo||'INT'}</span>${r.local||r.endereco||'—'}</div>
+        <div class="h-hr">${r.hora||''}</div>
+      </div>
+      <div class="h-end">${r.endereco||''}</div>
+      <div class="h-by">${r.realizadoPor||''}</div>
+      ${r.obs?`<div class="h-obs">💬 ${r.obs}</div>`:''}
+    </div>`;
+  }).join('');
+
+  const pgBar = $('pg-bar');
+  if (totalPags > 1) {
+    pgBar.style.display='flex';
+    $('pg-info').textContent='Pág. '+S.histPag+' / '+totalPags;
+    $('btn-prev').disabled = S.histPag<=1;
+    $('btn-next').disabled = S.histPag>=totalPags;
+  } else { pgBar.style.display='none'; }
+}
+
+function pgMover(dir) {
+  S.histPag += dir;
+  aplicarFiltro();
+  $('card-result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderSessao() {
+  const card = $('card-sess');
+  if (!S.sessao.length) { card.style.display='none'; return; }
+  card.style.display='block';
+  $('sess-qtd').textContent=S.sessao.length+' registro'+(S.sessao.length>1?'s':'');
+  $('sess-lista').innerHTML = S.sessao.map(r=>{
+    const bc = tipoBadgeClass(r.tipo);
+    return `<div class="h-item">
+      <div class="h-top">
+        <div class="h-loc"><span class="badge NOW">AGORA</span>${r.local||r.endereco||'—'}</div>
+        <div class="h-hr">${r.hora}</div>
+      </div>
+      <div class="h-end">${r.endereco||''}</div>
+      <div class="h-by">${r.realizadoPor} · ${r.data}</div>
+      ${r.obs?`<div class="h-obs">💬 ${r.obs}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function atualizarBadge() {
+  const b = $('badge-sess');
+  b.style.display = S.sessao.length?'inline-block':'none';
+  b.textContent = S.sessao.length;
+}
+
+// ══════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════
+function checkPw() {
+  const login = ''; // não tem campo login separado, usa só senha
+  const pw = $('pw-input').value.trim();
+  if (pw === ADMIN_SENHA || pw === ADMIN_LOGIN+'/'+ADMIN_SENHA) {
+    S.adminOk = true;
+    $('admin-lock').style.display='none';
+    $('admin-content').style.display='block';
+    renderAdmin();
+  } else {
+    $('pw-err').style.display='block';
+    $('pw-input').value='';
+    setTimeout(()=>$('pw-err').style.display='none', 2000);
+  }
+}
+
+function renderAdmin() {
+  $('vig-count').textContent = S.vigs.length;
+  $('vig-list').innerHTML = S.vigs.length
+    ? S.vigs.map((n,i)=>`
+      <div class="admin-item">
+        <div class="admin-item-main"><div class="admin-item-name">${n}</div></div>
+        <button class="btn-del" onclick="delVig(${i})">✕</button>
+      </div>`).join('')
+    : '<div style="padding:12px;color:var(--t2);text-align:center;font-size:13px">Nenhum vigilante</div>';
+
+  $('qr-count').textContent = S.qrBase.length;
+  $('qr-list').innerHTML = S.qrBase.length
+    ? S.qrBase.map((p,i)=>{
+        const bc = tipoBadgeClass(p.local);
+        return `<div class="admin-item">
+          <div class="admin-item-main">
+            <div class="admin-item-name" style="font-family:'DM Mono',monospace;font-size:12px">${p.qrcode}</div>
+            <div class="admin-item-sub">${p.endereco||p.local||'—'} <span class="badge ${bc}" style="font-size:7.5px">${p.local||'INT'}</span></div>
+          </div>
+          <button class="btn-del" onclick="delQR(${i})">✕</button>
+        </div>`;
+      }).join('')
+    : '<div style="padding:12px;color:var(--t2);text-align:center;font-size:13px">Nenhum ponto cadastrado</div>';
+}
+
+function setQrTipo(t) {
+  S.qrTipoNovo = t;
+  $('qr-tipo-int').className = 'tipo-btn INT'+(t==='INT'?' on':'');
+  $('qr-tipo-ext').className = 'tipo-btn EXT'+(t==='EXT'?' on':'');
+}
+
+function addVig() {
+  const nome = $('new-vig').value.trim();
+  if (!nome) { toast('Digite o nome','vm'); return; }
+  if (S.vigs.includes(nome)) { toast('Já cadastrado','vm'); return; }
+  S.vigs.push(nome); S.vigs.sort();
+  saveVigs(); renderSelVig(); renderAdmin();
+  $('new-vig').value='';
+  toast('✅ '+nome.split(' ')[0]+' adicionado!','vd');
+  pingConexao();
+}
+
+function delVig(i) {
+  const nome = S.vigs[i];
+  if (!confirm('Remover '+nome+'?')) return;
+  S.vigs.splice(i,1);
+  saveVigs(); renderSelVig(); renderAdmin();
+  toast(nome.split(' ')[0]+' removido');
+  pingConexao();
+}
+
+function addQR() {
+  const qr  = $('new-qr').value.trim();
+  const end = $('new-end').value.trim();
+  const loc = $('new-loc').value.trim();
+  if (!qr||!end||!loc) { toast('Preencha todos os campos','vm'); return; }
+  if (S.qrBase.find(p=>String(p.qrcode).toUpperCase()===qr.toUpperCase())) {
+    toast('QR Code já existe','vm'); return;
+  }
+  S.qrBase.push({qrcode:qr, endereco:end, local:loc});
+  saveQR(); renderAdmin();
+  $('new-qr').value=''; $('new-end').value=''; $('new-loc').value='';
+  toast('✅ Ponto '+qr+' cadastrado!','vd');
+}
+
+function delQR(i) {
+  const p = S.qrBase[i];
+  if (!confirm('Remover '+p.qrcode+'?')) return;
+  S.qrBase.splice(i,1);
+  saveQR(); renderAdmin();
+  toast(p.qrcode+' removido');
+}
+
+// ══════════════════════════════════════════
+// ATUALIZAR
+// ══════════════════════════════════════════
+async function acaoAtualizar() {
+  const btn = $('btn-upd');
+  btn.innerHTML='<span class="spin wh" style="width:12px;height:12px;border-width:2px"></span>';
+  btn.disabled=true;
+  await new Promise(r=>setTimeout(r,600));
+  pingConexao();
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Atualizar';
+  btn.disabled=false;
+  toast('Atualizado ✓');
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let _tt;
+function toast(msg,cls='') {
+  const t=$('toast'); clearTimeout(_tt);
+  t.textContent=msg; t.className='toast '+cls+' show';
+  _tt=setTimeout(()=>t.classList.remove('show'),3200);
+}
+</script>
+</body>
+</html>
